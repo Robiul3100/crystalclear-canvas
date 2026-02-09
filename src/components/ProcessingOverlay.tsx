@@ -33,7 +33,7 @@ const ProcessingOverlay = () => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="glass-card p-8 sm:p-12 flex flex-col items-center justify-center gap-6"
+      className="neo-card p-8 sm:p-12 flex flex-col items-center justify-center gap-6"
     >
       {/* Animated icon */}
       <motion.div

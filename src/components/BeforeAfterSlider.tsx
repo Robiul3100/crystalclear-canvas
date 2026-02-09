@@ -81,7 +81,7 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="glass-card p-3 sm:p-4 space-y-3"
+      className="neo-card p-3 sm:p-4 space-y-3"
     >
       {/* Labels + Zoom controls */}
       <div className="flex items-center justify-between">
