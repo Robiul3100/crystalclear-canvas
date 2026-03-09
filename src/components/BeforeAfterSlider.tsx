@@ -1,13 +1,11 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut, RotateCcw, Move } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 interface BeforeAfterSliderProps {
   beforeSrc: string;
   afterSrc: string;
 }
-
-const spring = { type: 'spring' as const, stiffness: 400, damping: 30 };
 
 const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
   const [position, setPosition] = useState(50);
@@ -26,7 +24,8 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (zoom > 1 && e.button === 0) {
+    if (zoom > 1 && e.button === 0 && !e.shiftKey) {
+      // Pan mode when zoomed
       isPanning.current = true;
       lastPanPos.current = { x: e.clientX, y: e.clientY };
       return;
@@ -81,61 +80,46 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={spring}
-      className="ios-card-elevated p-4 space-y-4"
+      transition={{ duration: 0.5 }}
+      className="neo-card p-3 sm:p-4 space-y-3"
     >
-      {/* Header with labels and zoom controls */}
+      {/* Labels + Zoom controls */}
       <div className="flex items-center justify-between">
         <div className="flex gap-4">
-          <span className="ios-pill text-xs">
-            <span className="w-2 h-2 rounded-full bg-destructive" />
-            আগে
-          </span>
-          <span className="ios-pill text-xs">
-            <span className="w-2 h-2 rounded-full bg-primary" />
-            পরে
-          </span>
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">আগে</span>
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">পরে</span>
         </div>
-
-        {/* Zoom Controls */}
-        <div className="flex items-center gap-1 bg-secondary rounded-xl p-1">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
+        <div className="flex items-center gap-1">
+          <button
             onClick={handleZoomOut}
             disabled={zoom <= 1}
-            className="p-2 rounded-lg hover:bg-background/50 transition-colors disabled:opacity-30"
+            className="p-1.5 rounded-lg hover:bg-muted transition-colors disabled:opacity-30"
           >
             <ZoomOut className="w-4 h-4 text-muted-foreground" />
-          </motion.button>
-          <span className="text-xs font-medium text-foreground w-10 text-center tabular-nums">
-            {zoom.toFixed(1)}x
-          </span>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
+          </button>
+          <span className="text-xs font-mono text-muted-foreground w-10 text-center">{zoom.toFixed(1)}x</span>
+          <button
             onClick={handleZoomIn}
             disabled={zoom >= 5}
-            className="p-2 rounded-lg hover:bg-background/50 transition-colors disabled:opacity-30"
+            className="p-1.5 rounded-lg hover:bg-muted transition-colors disabled:opacity-30"
           >
             <ZoomIn className="w-4 h-4 text-muted-foreground" />
-          </motion.button>
+          </button>
           {zoom > 1 && (
-            <motion.button
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={handleResetZoom}
-              className="p-2 rounded-lg hover:bg-background/50 transition-colors ml-1"
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors ml-1"
             >
-              <RotateCcw className="w-4 h-4 text-muted-foreground" />
-            </motion.button>
+              <RotateCcw className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
           )}
         </div>
       </div>
 
-      {/* Slider Container */}
+      {/* Slider container */}
       <div
         ref={containerRef}
-        className="relative w-full aspect-video select-none rounded-2xl overflow-hidden bg-secondary"
+        className="relative w-full aspect-video select-none rounded-xl overflow-hidden cursor-col-resize bg-muted/50"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -156,7 +140,6 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
             transformOrigin: 'center',
           }}
         />
-
         {/* Before image (clipped) */}
         <div
           className="absolute inset-0 overflow-hidden"
@@ -175,42 +158,23 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
             draggable={false}
           />
         </div>
-
-        {/* Slider Handle */}
+        {/* Slider line */}
         <div
-          className="absolute top-0 bottom-0 w-0.5 bg-white/90 z-10"
+          className="absolute top-0 bottom-0 w-0.5 bg-primary-foreground/90 z-10"
           style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
         >
-          <motion.div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full gradient-bg flex items-center justify-center shadow-xl"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white">
-              <path d="M5 4L2 8L5 12M11 4L14 8L11 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full gradient-bg flex items-center justify-center shadow-lg border-2 border-primary-foreground/50">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary-foreground">
+              <path d="M4 3L1 7L4 11M10 3L13 7L10 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </motion.div>
-        </div>
-
-        {/* Before/After overlay labels */}
-        <div className="absolute bottom-3 left-3 ios-pill text-[10px] bg-black/50 text-white border-0">
-          আগে
-        </div>
-        <div className="absolute bottom-3 right-3 ios-pill text-[10px] bg-black/50 text-white border-0">
-          পরে
+          </div>
         </div>
       </div>
 
-      {/* Zoom hint */}
       {zoom > 1 && (
-        <motion.p 
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center text-ios-footnote flex items-center justify-center gap-2"
-        >
-          <Move className="w-3 h-3" />
-          ড্র্যাগ করে প্যান করুন
-        </motion.p>
+        <p className="text-[10px] text-center text-muted-foreground">
+          ড্র্যাগ করে প্যান করুন · Shift+ক্লিক করে স্লাইডার সরান
+        </p>
       )}
     </motion.div>
   );
