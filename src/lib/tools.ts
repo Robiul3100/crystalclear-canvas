@@ -1,5 +1,5 @@
 import {
-  Eraser, ImageOff, Type, Stamp, Scissors, Blur,
+  Eraser, ImageOff, Type, Stamp, Scissors, CircleDot,
   Replace, ArrowUpCircle, Focus, Palette, History,
   Crop, Maximize, RotateCw, FileDown, Wand2,
   Ghost, Sparkles, UserCircle
