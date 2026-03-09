@@ -4,11 +4,13 @@ import { Sparkles } from 'lucide-react';
 
 const steps = [
   'ইমেজ লোড হচ্ছে...',
-  'ওয়াটারমার্ক শনাক্ত করা হচ্ছে...',
+  'ওয়াটারমার্ক শনাক্ত হচ্ছে...',
   'আলফা ম্যাপ তৈরি হচ্ছে...',
-  'রিভার্স ব্লেন্ডিং চলছে...',
-  'ফাইনাল আউটপুট তৈরি হচ্ছে...',
+  'রিভার্স ব্লেন্ডিং...',
+  'ফাইনাল আউটপুট...',
 ];
+
+const spring = { type: 'spring' as const, stiffness: 500, damping: 30 };
 
 const ProcessingOverlay = () => {
   const [progress, setProgress] = useState(0);
@@ -17,10 +19,10 @@ const ProcessingOverlay = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress(prev => {
-        const next = prev + Math.random() * 15 + 5;
+        const next = prev + Math.random() * 12 + 4;
         return next >= 95 ? 95 : next;
       });
-    }, 300);
+    }, 250);
     return () => clearInterval(interval);
   }, []);
 
@@ -33,39 +35,72 @@ const ProcessingOverlay = () => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="neo-card p-8 sm:p-12 flex flex-col items-center justify-center gap-6"
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={spring}
+      className="ios-card p-10 flex flex-col items-center justify-center gap-6"
     >
-      {/* Animated icon */}
+      {/* Animated Icon */}
       <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-        className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center shadow-lg"
+        animate={{ 
+          rotate: 360,
+          scale: [1, 1.05, 1],
+        }}
+        transition={{ 
+          rotate: { duration: 2, repeat: Infinity, ease: 'linear' },
+          scale: { duration: 1, repeat: Infinity, ease: 'easeInOut' },
+        }}
+        className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center ios-glow-primary"
       >
-        <Sparkles className="w-8 h-8 text-primary-foreground" />
+        <Sparkles className="w-8 h-8 text-white" />
       </motion.div>
 
-      {/* Progress bar */}
-      <div className="w-full max-w-xs space-y-2">
-        <div className="relative h-2 w-full rounded-full bg-muted overflow-hidden">
+      {/* Progress Container */}
+      <div className="w-full max-w-[240px] space-y-3">
+        {/* Progress Bar */}
+        <div className="ios-progress">
           <motion.div
-            className="absolute inset-y-0 left-0 rounded-full"
-            style={{ background: 'var(--gradient-primary)' }}
+            className="ios-progress-bar gradient-bg"
             initial={{ width: '0%' }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
           />
         </div>
+        
+        {/* Status */}
         <div className="flex justify-between items-center">
           <motion.p
             key={stepIdx}
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-muted-foreground"
+            transition={spring}
+            className="text-[13px] text-muted-foreground"
           >
             {steps[stepIdx]}
           </motion.p>
-          <span className="text-xs font-mono text-muted-foreground">{Math.round(progress)}%</span>
+          <span className="text-[13px] font-mono font-medium text-foreground">
+            {Math.round(progress)}%
+          </span>
         </div>
+      </div>
+
+      {/* Dots Animation */}
+      <div className="flex gap-1.5">
+        {[0, 1, 2].map(i => (
+          <motion.div
+            key={i}
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.3, 1, 0.3],
+            }}
+            transition={{
+              duration: 0.8,
+              repeat: Infinity,
+              delay: i * 0.15,
+              ease: 'easeInOut',
+            }}
+            className="w-2 h-2 rounded-full bg-primary"
+          />
+        ))}
       </div>
     </motion.div>
   );

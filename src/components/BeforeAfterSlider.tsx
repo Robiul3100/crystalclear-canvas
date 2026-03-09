@@ -1,11 +1,13 @@
 import { useState, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 interface BeforeAfterSliderProps {
   beforeSrc: string;
   afterSrc: string;
 }
+
+const spring = { type: 'spring' as const, stiffness: 500, damping: 30 };
 
 const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
   const [position, setPosition] = useState(50);
@@ -25,7 +27,6 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoom > 1 && e.button === 0 && !e.shiftKey) {
-      // Pan mode when zoomed
       isPanning.current = true;
       lastPanPos.current = { x: e.clientX, y: e.clientY };
       return;
@@ -78,48 +79,63 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="neo-card p-3 sm:p-4 space-y-3"
+      transition={spring}
+      className="ios-card overflow-hidden"
     >
-      {/* Labels + Zoom controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-4">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">আগে</span>
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">পরে</span>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+        <div className="flex gap-6">
+          <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">আগে</span>
+          <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">পরে</span>
         </div>
+        
+        {/* Zoom Controls */}
         <div className="flex items-center gap-1">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleZoomOut}
             disabled={zoom <= 1}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors disabled:opacity-30"
+            className="w-8 h-8 rounded-lg flex items-center justify-center touch-feedback disabled:opacity-30"
           >
             <ZoomOut className="w-4 h-4 text-muted-foreground" />
-          </button>
-          <span className="text-xs font-mono text-muted-foreground w-10 text-center">{zoom.toFixed(1)}x</span>
-          <button
+          </motion.button>
+          
+          <span className="text-[12px] font-mono text-muted-foreground w-10 text-center">
+            {zoom.toFixed(1)}×
+          </span>
+          
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleZoomIn}
             disabled={zoom >= 5}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors disabled:opacity-30"
+            className="w-8 h-8 rounded-lg flex items-center justify-center touch-feedback disabled:opacity-30"
           >
             <ZoomIn className="w-4 h-4 text-muted-foreground" />
-          </button>
-          {zoom > 1 && (
-            <button
-              onClick={handleResetZoom}
-              className="p-1.5 rounded-lg hover:bg-muted transition-colors ml-1"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-muted-foreground" />
-            </button>
-          )}
+          </motion.button>
+          
+          <AnimatePresence>
+            {zoom > 1 && (
+              <motion.button
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleResetZoom}
+                className="w-8 h-8 rounded-lg flex items-center justify-center touch-feedback ml-1"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-muted-foreground" />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
-      {/* Slider container */}
+      {/* Slider Container */}
       <div
         ref={containerRef}
-        className="relative w-full aspect-video select-none rounded-xl overflow-hidden cursor-col-resize bg-muted/50"
+        className="relative w-full aspect-video select-none bg-secondary/30"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -129,7 +145,7 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
         onTouchEnd={handleMouseUp}
         style={{ cursor: zoom > 1 ? 'grab' : 'col-resize' }}
       >
-        {/* After image (full) */}
+        {/* After Image (Full) */}
         <img
           src={afterSrc}
           alt="After"
@@ -140,7 +156,8 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
             transformOrigin: 'center',
           }}
         />
-        {/* Before image (clipped) */}
+        
+        {/* Before Image (Clipped) */}
         <div
           className="absolute inset-0 overflow-hidden"
           style={{ width: `${position}%` }}
@@ -158,24 +175,46 @@ const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
             draggable={false}
           />
         </div>
-        {/* Slider line */}
+        
+        {/* Slider Line */}
         <div
-          className="absolute top-0 bottom-0 w-0.5 bg-primary-foreground/90 z-10"
+          className="absolute top-0 bottom-0 w-[2px] bg-white/90 z-10"
           style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full gradient-bg flex items-center justify-center shadow-lg border-2 border-primary-foreground/50">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary-foreground">
-              <path d="M4 3L1 7L4 11M10 3L13 7L10 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Handle */}
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full gradient-bg flex items-center justify-center shadow-lg ios-glow-primary"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white">
+              <path 
+                d="M5 4L2 8L5 12M11 4L14 8L11 12" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+              />
             </svg>
-          </div>
+          </motion.div>
         </div>
       </div>
 
-      {zoom > 1 && (
-        <p className="text-[10px] text-center text-muted-foreground">
-          ড্র্যাগ করে প্যান করুন · Shift+ক্লিক করে স্লাইডার সরান
-        </p>
-      )}
+      {/* Zoom Hint */}
+      <AnimatePresence>
+        {zoom > 1 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-4 py-2 bg-secondary/50 text-center"
+          >
+            <p className="text-[11px] text-muted-foreground">
+              ড্র্যাগ করে প্যান করুন • Shift+ক্লিক করে স্লাইডার সরান
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
