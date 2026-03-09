@@ -305,7 +305,7 @@ const Index = () => {
                   showDivider
                 />
                 <FeatureRow 
-                  icon={<Zap className="w-5 h-5 text-amber-500" />}
+                  icon={<Zap className="w-5 h-5 text-accent" />}
                   title="সুপার ফাস্ট"
                   desc="মিলিসেকেন্ডে রেজাল্ট"
                   showDivider
