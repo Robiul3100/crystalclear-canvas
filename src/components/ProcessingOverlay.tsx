@@ -1,70 +1,117 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Cpu, Sparkles, CheckCircle2 } from 'lucide-react';
 
 const steps = [
-  'ইমেজ লোড হচ্ছে...',
-  'ওয়াটারমার্ক শনাক্ত করা হচ্ছে...',
-  'আলফা ম্যাপ তৈরি হচ্ছে...',
-  'রিভার্স ব্লেন্ডিং চলছে...',
-  'ফাইনাল আউটপুট তৈরি হচ্ছে...',
+  { id: 1, text: 'ইমেজ লোড হচ্ছে...', icon: Sparkles },
+  { id: 2, text: 'ওয়াটারমার্ক ডিটেক্ট করছে...', icon: Cpu },
+  { id: 3, text: 'প্রসেসিং চলছে...', icon: Cpu },
+  { id: 4, text: 'ফাইনাল টাচ দিচ্ছে...', icon: CheckCircle2 },
 ];
 
+const spring = { type: 'spring' as const, stiffness: 400, damping: 30 };
+
 const ProcessingOverlay = () => {
+  const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [stepIdx, setStepIdx] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        const next = prev + Math.random() * 15 + 5;
-        return next >= 95 ? 95 : next;
-      });
-    }, 300);
-    return () => clearInterval(interval);
+    const stepInterval = setInterval(() => {
+      setCurrentStep(prev => (prev < steps.length - 1 ? prev + 1 : prev));
+    }, 800);
+
+    const progressInterval = setInterval(() => {
+      setProgress(prev => Math.min(prev + Math.random() * 15, 95));
+    }, 200);
+
+    return () => {
+      clearInterval(stepInterval);
+      clearInterval(progressInterval);
+    };
   }, []);
 
-  useEffect(() => {
-    const idx = Math.min(Math.floor(progress / 20), steps.length - 1);
-    setStepIdx(idx);
-  }, [progress]);
+  const CurrentIcon = steps[currentStep].icon;
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="neo-card p-8 sm:p-12 flex flex-col items-center justify-center gap-6"
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={spring}
+      className="ios-card-elevated p-8 sm:p-12"
     >
-      {/* Animated icon */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-        className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center shadow-lg"
-      >
-        <Sparkles className="w-8 h-8 text-primary-foreground" />
-      </motion.div>
-
-      {/* Progress bar */}
-      <div className="w-full max-w-xs space-y-2">
-        <div className="relative h-2 w-full rounded-full bg-muted overflow-hidden">
+      <div className="flex flex-col items-center gap-6">
+        {/* Animated Icon */}
+        <div className="relative">
+          {/* Pulse rings */}
           <motion.div
-            className="absolute inset-y-0 left-0 rounded-full"
-            style={{ background: 'var(--gradient-primary)' }}
-            initial={{ width: '0%' }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute inset-0 w-20 h-20 rounded-full gradient-bg"
           />
-        </div>
-        <div className="flex justify-between items-center">
-          <motion.p
-            key={stepIdx}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-muted-foreground"
+          <motion.div
+            animate={{ scale: [1, 1.8, 1], opacity: [0.3, 0, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+            className="absolute inset-0 w-20 h-20 rounded-full gradient-bg"
+          />
+          
+          {/* Main icon */}
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+            className="relative w-20 h-20 rounded-3xl gradient-bg flex items-center justify-center shadow-xl glow-primary"
           >
-            {steps[stepIdx]}
+            <CurrentIcon className="w-9 h-9 text-primary-foreground" />
+          </motion.div>
+        </div>
+
+        {/* Status Text */}
+        <div className="text-center space-y-2">
+          <motion.p
+            key={currentStep}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-ios-headline text-foreground"
+          >
+            {steps[currentStep].text}
           </motion.p>
-          <span className="text-xs font-mono text-muted-foreground">{Math.round(progress)}%</span>
+          <p className="text-ios-footnote">
+            অনুগ্রহ করে অপেক্ষা করুন...
+          </p>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full max-w-xs">
+          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.3 }}
+              className="h-full gradient-bg rounded-full"
+            />
+          </div>
+          <div className="flex justify-between mt-2">
+            <span className="text-xs text-muted-foreground">প্রসেসিং</span>
+            <span className="text-xs font-medium text-foreground tabular-nums">
+              {Math.round(progress)}%
+            </span>
+          </div>
+        </div>
+
+        {/* Step indicators */}
+        <div className="flex gap-2">
+          {steps.map((step, idx) => (
+            <motion.div
+              key={step.id}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: idx * 0.1, ...spring }}
+              className={`
+                w-2 h-2 rounded-full transition-colors
+                ${idx <= currentStep ? 'gradient-bg' : 'bg-secondary'}
+              `}
+            />
+          ))}
         </div>
       </div>
     </motion.div>

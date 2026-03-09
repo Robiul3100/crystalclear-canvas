@@ -2,40 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 224 71% 8%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 8%;
+    --card-foreground: 0 0% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 8%;
-    --primary: 239 84% 67%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 211 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 224 71% 8%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 187 92% 55%;
-    --accent-foreground: 224 71% 8%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 211 100% 50%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 239 84% 67%;
-    --radius: 0.75rem;
-    --glass: 0 0% 100% / 0.7;
-    --glass-border: 0 0% 100% / 0.3;
-    --glass-shadow: 239 84% 67% / 0.08;
-    --gradient-primary: linear-gradient(135deg, hsl(239 84% 67%), hsl(187 92% 55%));
-    --gradient-surface: linear-gradient(135deg, hsl(0 0% 100% / 0.8), hsl(0 0% 100% / 0.4));
-    --shadow-glass: 0 8px 32px hsl(var(--glass-shadow));
-    --shadow-elevated: 0 20px 60px hsl(239 84% 67% / 0.12);
-    --neo-shadow: 6px 6px 12px hsl(214 32% 85%), -6px -6px 12px hsl(0 0% 100%);
-    --neo-shadow-inset: inset 4px 4px 8px hsl(214 32% 85%), inset -4px -4px 8px hsl(0 0% 100%);
-    --neo-shadow-sm: 3px 3px 6px hsl(214 32% 85%), -3px -3px 6px hsl(0 0% 100%);
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 211 100% 50%;
+    --radius: 1rem;
+
+    /* iOS-style variables */
+    --ios-blur: 20px;
+    --ios-shadow: 0 2px 10px hsl(0 0% 0% / 0.06);
+    --ios-shadow-lg: 0 8px 30px hsl(0 0% 0% / 0.08);
+    --ios-card: 0 0% 100% / 0.72;
+    --ios-card-solid: 0 0% 100%;
+    --ios-border: 0 0% 0% / 0.04;
+    --ios-success: 142 71% 45%;
+    --ios-warning: 38 92% 50%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -48,38 +48,40 @@
   }
 
   .dark {
-    --background: 228 20% 7%;
-    --foreground: 210 40% 96%;
-    --card: 228 20% 10%;
-    --card-foreground: 210 40% 96%;
-    --popover: 228 20% 10%;
-    --popover-foreground: 210 40% 96%;
-    --primary: 239 84% 67%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 211 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 228 18% 14%;
-    --secondary-foreground: 210 40% 96%;
-    --muted: 228 18% 14%;
-    --muted-foreground: 215 20% 55%;
-    --accent: 187 92% 55%;
-    --accent-foreground: 228 20% 7%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 228 16% 16%;
-    --input: 228 16% 16%;
-    --ring: 239 84% 67%;
-    --glass: 228 20% 10% / 0.75;
-    --glass-border: 0 0% 100% / 0.06;
-    --glass-shadow: 0 0% 0% / 0.4;
-    --neo-shadow: 6px 6px 14px hsl(228 20% 4%), -6px -6px 14px hsl(228 16% 14%);
-    --neo-shadow-inset: inset 4px 4px 10px hsl(228 20% 4%), inset -4px -4px 10px hsl(228 16% 14%);
-    --neo-shadow-sm: 3px 3px 8px hsl(228 20% 4%), -3px -3px 8px hsl(228 16% 14%);
-    --sidebar-background: 228 20% 7%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 211 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 211 100% 50%;
+
+    /* iOS Dark mode */
+    --ios-card: 0 0% 10% / 0.72;
+    --ios-card-solid: 0 0% 12%;
+    --ios-border: 0 0% 100% / 0.06;
+    --ios-shadow: 0 2px 10px hsl(0 0% 0% / 0.3);
+    --ios-shadow-lg: 0 8px 30px hsl(0 0% 0% / 0.4);
+
+    --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 228 18% 12%;
+    --sidebar-accent: 0 0% 15%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 228 16% 16%;
+    --sidebar-border: 0 0% 18%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -89,73 +91,164 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-card/70 backdrop-blur-xl border border-border/30 rounded-2xl;
-    box-shadow: var(--shadow-glass);
+  /* iOS Frosted Glass Card */
+  .ios-card {
+    @apply bg-card/72 backdrop-blur-xl border border-border/10 rounded-2xl;
+    box-shadow: var(--ios-shadow);
   }
-  .glass-card-elevated {
-    @apply bg-card/80 backdrop-blur-xl border border-border/30 rounded-2xl;
-    box-shadow: var(--shadow-elevated);
+
+  .ios-card-solid {
+    @apply bg-card rounded-2xl border border-border/10;
+    box-shadow: var(--ios-shadow);
   }
-  .neo-card {
-    @apply bg-card rounded-2xl border border-border/20;
-    box-shadow: var(--neo-shadow);
+
+  .ios-card-elevated {
+    @apply bg-card/80 backdrop-blur-xl rounded-3xl border border-border/10;
+    box-shadow: var(--ios-shadow-lg);
   }
-  .neo-card-inset {
-    @apply bg-card rounded-2xl;
-    box-shadow: var(--neo-shadow-inset);
+
+  /* iOS Button Styles */
+  .ios-btn {
+    @apply inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-200;
+    @apply active:scale-95 active:opacity-80;
   }
-  .neo-btn {
-    @apply bg-card rounded-xl border border-border/10 transition-all duration-200 active:scale-95;
-    box-shadow: var(--neo-shadow-sm);
+
+  .ios-btn-primary {
+    @apply ios-btn bg-primary text-primary-foreground px-5 py-2.5;
+    box-shadow: 0 4px 14px hsl(var(--primary) / 0.35);
   }
-  .neo-btn:hover {
-    box-shadow: var(--neo-shadow);
+
+  .ios-btn-secondary {
+    @apply ios-btn bg-secondary text-secondary-foreground px-5 py-2.5;
   }
-  .neo-btn:active {
-    box-shadow: var(--neo-shadow-inset);
+
+  .ios-btn-ghost {
+    @apply ios-btn text-primary hover:bg-primary/10 px-4 py-2;
   }
+
+  /* iOS Pill/Chip */
+  .ios-pill {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium;
+    @apply bg-secondary text-secondary-foreground;
+  }
+
+  /* iOS Input */
+  .ios-input {
+    @apply w-full px-4 py-3 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all;
+  }
+
+  /* iOS List Item */
+  .ios-list-item {
+    @apply flex items-center gap-3 p-3 rounded-xl transition-colors;
+    @apply hover:bg-secondary active:bg-secondary/80;
+  }
+
+  /* iOS Section Header */
+  .ios-section-header {
+    @apply text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 mb-2;
+  }
+
+  /* iOS Segmented Control */
+  .ios-segment {
+    @apply inline-flex p-1 rounded-xl bg-secondary;
+  }
+
+  .ios-segment-btn {
+    @apply px-4 py-1.5 rounded-lg text-sm font-medium transition-all;
+    @apply text-muted-foreground;
+  }
+
+  .ios-segment-btn.active {
+    @apply bg-card text-foreground shadow-sm;
+  }
+
+  /* iOS Safe Area */
+  .ios-safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .ios-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Gradient Effects */
   .gradient-text {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(211 100% 65%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .gradient-border {
-    position: relative;
-    border: none;
-  }
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: var(--gradient-primary);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
+
   .gradient-bg {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(211 100% 60%));
   }
+
   .glow-primary {
-    box-shadow: 0 0 20px hsl(239 84% 67% / 0.3), 0 0 60px hsl(239 84% 67% / 0.1);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.15);
   }
-  .glow-accent {
-    box-shadow: 0 0 20px hsl(187 92% 55% / 0.3), 0 0 60px hsl(187 92% 55% / 0.1);
+
+  /* iOS Progress Ring */
+  .ios-progress-ring {
+    animation: ios-rotate 1s linear infinite;
+  }
+
+  @keyframes ios-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* iOS Spring Animation */
+  .ios-spring {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .ios-spring:active {
+    transform: scale(0.96);
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* iOS Backdrop */
+  .ios-backdrop {
+    @apply fixed inset-0 bg-black/40 backdrop-blur-sm;
   }
 }
 
 @layer utilities {
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+  /* iOS Typography */
+  .text-ios-title {
+    @apply text-2xl sm:text-3xl font-bold tracking-tight;
+  }
+
+  .text-ios-headline {
+    @apply text-lg sm:text-xl font-semibold;
+  }
+
+  .text-ios-body {
+    @apply text-base font-normal;
+  }
+
+  .text-ios-caption {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .text-ios-footnote {
+    @apply text-xs text-muted-foreground;
   }
 }
