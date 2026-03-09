@@ -365,7 +365,7 @@ const Index = () => {
                   </motion.button>
                   
                   <div className="ios-pill text-[12px]">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
                     <span className="font-semibold">{doneCount}/{images.length}</span>
                   </div>
                 </div>
