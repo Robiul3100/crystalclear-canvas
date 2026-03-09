@@ -1,577 +1,318 @@
-import { useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
-  Upload, Image as ImageIcon, Clipboard, Shield, Zap, Download, RotateCcw,
-  CheckCircle2, X, ChevronRight, Trash2, Sun, Moon, Sparkles,
-  Lock, Cpu, Camera, Layers, Plus, Share2, Info
+  Sparkles, ArrowRight, Upload, Shield, Zap, Layers,
+  ChevronRight, Star, Cpu, Eye
 } from 'lucide-react';
-import { loadImageFromFile, processImage, downloadImage, ensureAssetsLoaded } from '@/lib/watermarkEngine';
-import BeforeAfterSlider from '@/components/BeforeAfterSlider';
-import ProcessingOverlay from '@/components/ProcessingOverlay';
-import { useTheme } from '@/hooks/useTheme';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ToolCard from '@/components/ToolCard';
+import { tools, categories } from '@/lib/tools';
 
-interface ProcessedImage {
-  id: string;
-  filename: string;
-  originalDataUrl: string;
-  resultDataUrl: string;
-  width: number;
-  height: number;
-  status: 'processing' | 'done' | 'error';
-  error?: string;
-}
-
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_SIZE = 50 * 1024 * 1024;
-
-const spring = { type: 'spring' as const, stiffness: 500, damping: 30 };
+const spring = { type: 'spring' as const, stiffness: 400, damping: 30 };
 
 const Index = () => {
-  const [images, setImages] = useState<ProcessedImage[]>([]);
-  const [selectedIdx, setSelectedIdx] = useState<number>(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [assetsReady, setAssetsReady] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { theme, toggleTheme } = useTheme();
+  const [activeCategory, setActiveCategory] = useState('all');
 
-  const preloadAssets = useCallback(async () => {
-    if (!assetsReady) {
-      await ensureAssetsLoaded();
-      setAssetsReady(true);
-    }
-  }, [assetsReady]);
+  const filteredTools = useMemo(() => {
+    if (activeCategory === 'all') return tools;
+    return tools.filter(t => t.category === activeCategory);
+  }, [activeCategory]);
 
-  const processFile = useCallback(async (file: File) => {
-    if (!ACCEPTED_TYPES.includes(file.type)) return;
-    if (file.size > MAX_SIZE) return;
-
-    await preloadAssets();
-
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const filename = file.name.replace(/\.[^.]+$/, '') + '_no_watermark.png';
-
-    setImages(prev => {
-      const newImages = [...prev, {
-        id, filename,
-        originalDataUrl: '', resultDataUrl: '',
-        width: 0, height: 0,
-        status: 'processing' as const,
-      }];
-      setSelectedIdx(newImages.length - 1);
-      return newImages;
-    });
-
-    try {
-      const img = await loadImageFromFile(file);
-      const result = await processImage(img);
-      setImages(prev => prev.map(item =>
-        item.id === id ? { ...item, ...result, status: 'done' as const } : item
-      ));
-    } catch (err) {
-      setImages(prev => prev.map(item =>
-        item.id === id ? { ...item, status: 'error' as const, error: (err as Error).message } : item
-      ));
-    }
-  }, [preloadAssets]);
-
-  const handleFiles = useCallback((files: FileList | File[]) => {
-    Array.from(files).forEach(f => processFile(f));
-  }, [processFile]);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    handleFiles(e.dataTransfer.files);
-  }, [handleFiles]);
-
-  const handlePaste = useCallback((e: React.ClipboardEvent) => {
-    const items = e.clipboardData.items;
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        const file = item.getAsFile();
-        if (file) processFile(file);
-      }
-    }
-  }, [processFile]);
-
-  const handleReset = useCallback(() => {
-    setImages([]);
-    setSelectedIdx(0);
-  }, []);
-
-  const handleRemoveImage = useCallback((idx: number) => {
-    setImages(prev => {
-      const newImages = prev.filter((_, i) => i !== idx);
-      if (selectedIdx >= newImages.length) setSelectedIdx(Math.max(0, newImages.length - 1));
-      return newImages;
-    });
-  }, [selectedIdx]);
-
-  const handleDownloadAll = useCallback(() => {
-    images.filter(i => i.status === 'done').forEach((img, idx) => {
-      setTimeout(() => downloadImage(img.resultDataUrl, img.filename), idx * 200);
-    });
-  }, [images]);
-
-  const selected = images[selectedIdx];
-  const doneCount = images.filter(i => i.status === 'done').length;
-  const hasImages = images.length > 0;
+  const featuredTool = tools.find(t => t.featured);
 
   return (
-    <div 
-      className="min-h-screen bg-background transition-colors duration-300 ios-safe-top ios-safe-bottom" 
-      onPaste={handlePaste} 
-      tabIndex={0}
-    >
-      {/* iOS-style Navigation Bar */}
-      <motion.header
-        initial={{ y: -60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={spring}
-        className="ios-nav"
-      >
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <motion.div
-              whileTap={{ scale: 0.9 }}
-              className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center ios-glow-primary"
-            >
-              <Sparkles className="w-5 h-5 text-white" />
-            </motion.div>
-            <div className="leading-tight">
-              <h1 className="text-[15px] font-bold text-foreground tracking-tight">
-                Gemini <span className="ios-gradient-text">WR</span>
-              </h1>
-            </div>
+    <div className="min-h-screen bg-background safe-top safe-bottom">
+      <Navbar />
+
+      <main className="pt-16">
+        {/* ═══════ HERO ═══════ */}
+        <section className="relative overflow-hidden">
+          {/* Background glow */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-20 blur-[120px] gradient-primary" />
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              className="ios-pill text-xs"
-            >
-              <Lock className="w-3.5 h-3.5 text-primary" />
-              <span className="hidden sm:inline">লোকাল</span>
-            </motion.button>
-            
-            <motion.button
-              whileTap={{ scale: 0.85, rotate: 180 }}
-              onClick={toggleTheme}
-              className="w-10 h-10 rounded-full flex items-center justify-center touch-feedback"
-            >
-              <AnimatePresence mode="wait">
-                {theme === 'dark' ? (
-                  <motion.div
-                    key="sun"
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    exit={{ scale: 0, rotate: 180 }}
-                    transition={spring}
-                  >
-                    <Sun className="w-5 h-5 text-accent" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="moon"
-                    initial={{ scale: 0, rotate: 180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    exit={{ scale: 0, rotate: -180 }}
-                    transition={spring}
-                  >
-                    <Moon className="w-5 h-5 text-primary" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* Main Content */}
-      <main className="pt-16 pb-8 px-4">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={ACCEPTED_TYPES.join(',')}
-          multiple
-          className="hidden"
-          onChange={(e) => { if (e.target.files) handleFiles(e.target.files); }}
-        />
-
-        <AnimatePresence mode="wait">
-          {!hasImages ? (
-            /* ====== WELCOME SCREEN ====== */
-            <motion.div
-              key="welcome"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-              className="max-w-lg mx-auto space-y-8 py-8"
-            >
-              {/* Hero */}
-              <motion.div 
+          <div className="relative max-w-6xl mx-auto px-4 pt-16 pb-20 sm:pt-24 sm:pb-28">
+            <div className="text-center space-y-6 max-w-3xl mx-auto">
+              {/* Badge */}
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-center space-y-4"
               >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
-                  className="inline-flex items-center gap-2 ios-pill text-[13px]"
-                >
-                  <Cpu className="w-4 h-4 text-primary" />
-                  রিভার্স আলফা ব্লেন্ডিং
-                </motion.div>
-
-                <h2 className="text-[28px] sm:text-[34px] font-bold text-foreground leading-tight tracking-tight">
-                  Gemini ইমেজের{' '}
-                  <span className="ios-gradient-text">ওয়াটারমার্ক</span>
-                  <br />
-                  মুছে ফেলুন
-                </h2>
-                
-                <p className="text-[15px] text-muted-foreground leading-relaxed max-w-sm mx-auto">
-                  সম্পূর্ণ প্রাইভেট • ব্রাউজারে প্রসেসিং • ফ্রি
-                </p>
+                <span className="pill text-primary">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  All-in-One AI Image Platform
+                </span>
               </motion.div>
 
-              {/* Upload Card */}
-              <motion.div
+              {/* Heading */}
+              <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.15 }}
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-[1.1]"
               >
-                <label
-                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="block cursor-pointer"
-                >
-                  <motion.div
-                    animate={isDragging ? { scale: 1.02 } : { scale: 1 }}
-                    transition={spring}
-                    className={`
-                      ios-card p-8 text-center space-y-5 transition-all duration-200
-                      ${isDragging ? 'ios-glow-primary ring-2 ring-primary' : ''}
-                    `}
-                  >
-                    <motion.div
-                      animate={isDragging ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-                      className="w-20 h-20 mx-auto rounded-[22px] gradient-bg flex items-center justify-center ios-glow-primary"
-                    >
-                      <Camera className="w-9 h-9 text-white" />
-                    </motion.div>
+                AI দিয়ে ইমেজ{' '}
+                <span className="gradient-text">ম্যাজিক</span>
+                <br />
+                করুন এক ক্লিকে
+              </motion.h1>
 
-                    <div className="space-y-1.5">
-                      <p className="text-[17px] font-semibold text-foreground">
-                        ইমেজ যোগ করুন
-                      </p>
-                      <p className="text-[13px] text-muted-foreground">
-                        JPG, PNG, WebP • সর্বোচ্চ 50MB
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap justify-center gap-2">
-                      <span className="ios-pill text-[12px]">
-                        <ImageIcon className="w-3.5 h-3.5 text-accent" />
-                        ড্র্যাগ & ড্রপ
-                      </span>
-                      <span className="ios-pill text-[12px]">
-                        <Clipboard className="w-3.5 h-3.5 text-accent" />
-                        পেস্ট (Ctrl+V)
-                      </span>
-                    </div>
-                  </motion.div>
-                </label>
-              </motion.div>
-
-              {/* Features Grid */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="ios-card overflow-hidden"
-              >
-                <FeatureRow 
-                  icon={<Shield className="w-5 h-5 text-primary" />}
-                  title="১০০% প্রাইভেট"
-                  desc="কোনো ডেটা সার্ভারে যায় না"
-                  showDivider
-                />
-                <FeatureRow 
-                  icon={<Zap className="w-5 h-5 text-accent" />}
-                  title="সুপার ফাস্ট"
-                  desc="মিলিসেকেন্ডে রেজাল্ট"
-                  showDivider
-                />
-                <FeatureRow 
-                  icon={<Layers className="w-5 h-5 text-accent" />}
-                  title="লসলেস কোয়ালিটি"
-                  desc="অরিজিনাল রেজোলিউশন বজায়"
-                />
-              </motion.div>
-
-              {/* Developer Credit */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-center pt-2"
-              >
-                <motion.div
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-3 ios-card px-5 py-3"
-                >
-                  <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">R</span>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Developer</p>
-                    <p className="text-[15px] font-bold ios-gradient-text">RSF ROBIUL</p>
-                  </div>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          ) : (
-            /* ====== EDITOR SCREEN ====== */
-            <motion.div
-              key="editor"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-              className="max-w-2xl mx-auto space-y-4"
-            >
-              {/* Quick Actions Bar */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="ios-btn-secondary text-[13px] px-4 py-2.5"
-                  >
-                    <Plus className="w-4 h-4 mr-1.5" />
-                    যোগ করুন
-                  </motion.button>
-                  
-                  <div className="ios-pill text-[12px]">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
-                    <span className="font-semibold">{doneCount}/{images.length}</span>
-                  </div>
-                </div>
-                
-                <div className="flex gap-1.5">
-                  {doneCount > 1 && (
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={handleDownloadAll}
-                      className="ios-btn-ghost text-[13px]"
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </motion.button>
-                  )}
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handleReset}
-                    className="ios-btn-ghost text-[13px] text-destructive"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </motion.button>
-                </div>
-              </motion.div>
-
-              {/* Image Carousel (Mobile) */}
-              {images.length > 1 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1"
-                >
-                  {images.map((img, idx) => (
-                    <ImageThumb
-                      key={img.id}
-                      img={img}
-                      isSelected={idx === selectedIdx}
-                      onClick={() => setSelectedIdx(idx)}
-                      onRemove={() => handleRemoveImage(idx)}
-                    />
-                  ))}
-                </motion.div>
-              )}
-
-              {/* Main Preview */}
-              <AnimatePresence mode="wait">
-                {selected?.status === 'done' ? (
-                  <motion.div
-                    key={`done-${selected.id}`}
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={spring}
-                    className="space-y-4"
-                  >
-                    <BeforeAfterSlider
-                      beforeSrc={selected.originalDataUrl}
-                      afterSrc={selected.resultDataUrl}
-                    />
-                    
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => downloadImage(selected.resultDataUrl, selected.filename)}
-                      className="w-full ios-btn-primary text-[15px] py-3.5 ios-glow-primary"
-                    >
-                      <Download className="w-5 h-5 mr-2" />
-                      ডাউনলোড করুন
-                    </motion.button>
-                  </motion.div>
-                ) : selected?.status === 'processing' ? (
-                  <ProcessingOverlay key={`proc-${selected.id}`} />
-                ) : selected?.status === 'error' ? (
-                  <motion.div
-                    key={`err-${selected.id}`}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="ios-card p-12 text-center space-y-4"
-                  >
-                    <div className="w-16 h-16 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
-                      <X className="w-8 h-8 text-destructive" />
-                    </div>
-                    <p className="text-[15px] text-destructive">{selected.error || 'ত্রুটি ঘটেছে'}</p>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="empty"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="ios-card p-12 text-center space-y-4"
-                  >
-                    <Info className="w-12 h-12 mx-auto text-muted-foreground/30" />
-                    <p className="text-[15px] text-muted-foreground">একটি ইমেজ সিলেক্ট করুন</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Drop Zone */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={handleDrop}
-                className={`
-                  ios-card-inset p-4 text-center transition-all duration-200
-                  ${isDragging ? 'ring-2 ring-primary ios-glow-primary' : ''}
-                `}
-              >
-                <p className="text-[13px] text-muted-foreground flex items-center justify-center gap-2">
-                  <Upload className="w-4 h-4" />
-                  আরো ইমেজ ড্রপ করুন
-                </p>
-              </motion.div>
-
-              {/* Footer Credit */}
+              {/* Subtitle */}
               <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-center text-[12px] text-muted-foreground pt-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed"
               >
-                Developed by <span className="font-semibold ios-gradient-text">RSF ROBIUL</span>
+                ওয়াটারমার্ক রিমুভ, ব্যাকগ্রাউন্ড রিমুভ, AI আপস্কেল এবং আরো অনেক কিছু।
+                সম্পূর্ণ ফ্রি এবং প্রাইভেট।
               </motion.p>
+
+              {/* CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="flex flex-col sm:flex-row items-center justify-center gap-3"
+              >
+                <Link to="/watermark-remover" className="btn-primary text-[15px] glow-primary">
+                  <Upload className="w-5 h-5" />
+                  ওয়াটারমার্ক রিমুভ করুন
+                </Link>
+                <a href="#tools" className="btn-secondary text-[15px]">
+                  সব টুলস দেখুন
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </motion.div>
+
+              {/* Stats */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-center justify-center gap-6 pt-4"
+              >
+                {[
+                  { value: '20+', label: 'AI Tools' },
+                  { value: '100%', label: 'Free' },
+                  { value: '0', label: 'Data Sent' },
+                ].map((stat, i) => (
+                  <div key={i} className="text-center">
+                    <p className="text-xl font-bold gradient-text">{stat.value}</p>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════ QUICK ACCESS ═══════ */}
+        <section className="max-w-6xl mx-auto px-4 -mt-8 relative z-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {tools.filter(t => t.badge).slice(0, 4).map((tool, i) => {
+              const Icon = tool.icon;
+              return (
+                <motion.div
+                  key={tool.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.05 }}
+                >
+                  <Link to={tool.path} className="glass-card p-4 flex items-center gap-3 hover:border-primary/30 transition-all group touch-feedback block">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:gradient-primary group-hover:glow-primary transition-all">
+                      <Icon className="w-5 h-5 text-primary group-hover:text-white transition-colors" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-foreground truncate">{tool.nameBn}</p>
+                      <p className="text-[11px] text-muted-foreground">{tool.badge}</p>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ═══════ FEATURED TOOL ═══════ */}
+        {featuredTool && (
+          <section className="max-w-6xl mx-auto px-4 py-20">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="glass-card overflow-hidden"
+            >
+              <div className="grid md:grid-cols-2 gap-0">
+                {/* Left - Info */}
+                <div className="p-8 sm:p-10 flex flex-col justify-center space-y-6">
+                  <span className="pill w-fit text-primary">
+                    <Star className="w-3.5 h-3.5" />
+                    Featured Tool
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+                    Gemini <span className="gradient-text">Watermark Remover</span>
+                  </h2>
+                  <p className="text-muted-foreground text-[15px] leading-relaxed">
+                    রিভার্স আলফা ব্লেন্ডিং টেকনোলজি ব্যবহার করে Gemini AI-এর ওয়াটারমার্ক মুহূর্তে মুছে ফেলুন।
+                    ১০০% ব্রাউজারে প্রসেসিং, কোনো ডেটা সার্ভারে পাঠানো হয় না।
+                  </p>
+
+                  <div className="space-y-3">
+                    {[
+                      { icon: <Shield className="w-4 h-4 text-primary" />, text: '১০০% প্রাইভেট - কোনো ডেটা আপলোড হয় না' },
+                      { icon: <Zap className="w-4 h-4 text-accent" />, text: 'সুপার ফাস্ট - মিলিসেকেন্ডে প্রসেসিং' },
+                      { icon: <Layers className="w-4 h-4 text-primary" />, text: 'লসলেস কোয়ালিটি - অরিজিনাল রেজোলিউশন' },
+                      { icon: <Cpu className="w-4 h-4 text-accent" />, text: 'ব্যাচ প্রসেসিং - একসাথে একাধিক ইমেজ' },
+                    ].map((f, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.08 }}
+                        className="flex items-center gap-3"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                          {f.icon}
+                        </div>
+                        <span className="text-[13px] text-foreground">{f.text}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <Link to="/watermark-remover" className="btn-primary w-fit text-[15px] glow-primary">
+                    টুল ওপেন করুন
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+
+                {/* Right - Visual */}
+                <div className="relative bg-secondary/30 flex items-center justify-center p-8 min-h-[300px]">
+                  <div className="absolute inset-0 opacity-30 pointer-events-none">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full gradient-primary blur-[100px]" />
+                  </div>
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={spring}
+                    className="relative z-10 text-center space-y-4"
+                  >
+                    <div className="w-24 h-24 mx-auto rounded-3xl gradient-primary flex items-center justify-center glow-primary">
+                      <Eye className="w-12 h-12 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2 justify-center">
+                      <div className="w-16 h-1.5 rounded-full bg-destructive/50" />
+                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                      <div className="w-16 h-1.5 rounded-full gradient-primary" />
+                    </div>
+                    <p className="text-[13px] text-muted-foreground">Before → After</p>
+                  </motion.div>
+                </div>
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </section>
+        )}
+
+        {/* ═══════ ALL TOOLS ═══════ */}
+        <section id="tools" className="max-w-6xl mx-auto px-4 py-16">
+          <div className="text-center space-y-3 mb-10">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="section-title"
+            >
+              সকল AI <span className="gradient-text">Image Tools</span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="section-subtitle mx-auto"
+            >
+              ২০+ পাওয়ারফুল AI টুলস দিয়ে আপনার ইমেজ ট্রান্সফর্ম করুন
+            </motion.p>
+          </div>
+
+          {/* Category Filter */}
+          <div id="categories" className="flex gap-2 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1 mb-8">
+            {categories.map((cat) => (
+              <motion.button
+                key={cat.id}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`category-chip whitespace-nowrap ${activeCategory === cat.id ? 'active' : ''}`}
+              >
+                {cat.label}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Tools Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredTools.map((tool, i) => (
+              <ToolCard key={tool.id} tool={tool} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════ CTA SECTION ═══════ */}
+        <section className="max-w-6xl mx-auto px-4 pb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass-card p-8 sm:p-12 text-center space-y-5 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full gradient-primary blur-[100px]" />
+            </div>
+            <div className="relative z-10 space-y-5">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+                এখনই শুরু করুন — <span className="gradient-text">সম্পূর্ণ ফ্রি</span>
+              </h2>
+              <p className="text-muted-foreground text-[15px] max-w-lg mx-auto">
+                কোনো সাইন আপ নেই, কোনো ক্রেডিট কার্ড নেই। শুধু আপনার ইমেজ আপলোড করুন।
+              </p>
+              <Link to="/watermark-remover" className="btn-primary text-[15px] glow-primary inline-flex">
+                <Upload className="w-5 h-5" />
+                শুরু করুন
+              </Link>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ═══════ DEVELOPER CREDIT ═══════ */}
+        <section className="max-w-6xl mx-auto px-4 pb-12">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="flex justify-center"
+          >
+            <div className="glass-card px-6 py-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center glow-primary">
+                <span className="text-white font-bold text-lg">R</span>
+              </div>
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-widest">Developed by</p>
+                <p className="text-[17px] font-bold gradient-text">RSF ROBIUL</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground/30 ml-2" />
+            </div>
+          </motion.div>
+        </section>
       </main>
+
+      <Footer />
     </div>
   );
 };
-
-/* ====== Sub-Components ====== */
-
-function FeatureRow({ 
-  icon, title, desc, showDivider 
-}: { 
-  icon: React.ReactNode; 
-  title: string; 
-  desc: string; 
-  showDivider?: boolean;
-}) {
-  return (
-    <>
-      <div className="ios-list-item">
-        <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
-          {icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-medium text-foreground">{title}</p>
-          <p className="text-[13px] text-muted-foreground">{desc}</p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
-      </div>
-      {showDivider && <div className="ios-divider" />}
-    </>
-  );
-}
-
-function ImageThumb({
-  img, isSelected, onClick, onRemove,
-}: {
-  img: ProcessedImage;
-  isSelected: boolean;
-  onClick: () => void;
-  onRemove: () => void;
-}) {
-  return (
-    <motion.div
-      whileTap={{ scale: 0.95 }}
-      onClick={onClick}
-      className={`
-        relative flex-shrink-0 w-[72px] h-[72px] rounded-2xl overflow-hidden cursor-pointer 
-        transition-all duration-200 touch-feedback
-        ${isSelected 
-          ? 'ring-[3px] ring-primary ios-glow-primary scale-105' 
-          : 'opacity-60 hover:opacity-100'
-        }
-      `}
-    >
-      {img.originalDataUrl ? (
-        <img src={img.originalDataUrl} alt="" className="w-full h-full object-cover" />
-      ) : (
-        <div className="w-full h-full bg-secondary flex items-center justify-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full"
-          />
-        </div>
-      )}
-      
-      {img.status === 'done' && (
-        <div className="absolute top-1 right-1 w-5 h-5 rounded-full gradient-bg flex items-center justify-center">
-          <CheckCircle2 className="w-3 h-3 text-white" />
-        </div>
-      )}
-      
-      <motion.button
-        whileTap={{ scale: 0.8 }}
-        onClick={(e) => { e.stopPropagation(); onRemove(); }}
-        className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
-      >
-        <Trash2 className="w-3 h-3 text-white" />
-      </motion.button>
-    </motion.div>
-  );
-}
 
 export default Index;
