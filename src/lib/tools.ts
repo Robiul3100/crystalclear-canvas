@@ -85,7 +85,7 @@ export const tools: ToolDef[] = [
     name: 'Background Blur',
     nameBn: 'ব্যাকগ্রাউন্ড ব্লার',
     description: 'Add professional bokeh blur to any background',
-    icon: Blur,
+    icon: CircleDot,
     category: 'background',
     path: '/tool/background-blur',
   },
