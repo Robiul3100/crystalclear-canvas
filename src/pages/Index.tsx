@@ -170,7 +170,7 @@ const Index = () => {
                     exit={{ scale: 0, rotate: 180 }}
                     transition={spring}
                   >
-                    <Sun className="w-5 h-5 text-amber-400" />
+                    <Sun className="w-5 h-5 text-accent" />
                   </motion.div>
                 ) : (
                   <motion.div
