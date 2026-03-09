@@ -27,8 +27,7 @@ const ProcessingOverlay = () => {
   }, []);
 
   useEffect(() => {
-    const idx = Math.min(Math.floor(progress / 20), steps.length - 1);
-    setStepIdx(idx);
+    setStepIdx(Math.min(Math.floor(progress / 20), steps.length - 1));
   }, [progress]);
 
   return (
@@ -37,69 +36,39 @@ const ProcessingOverlay = () => {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={spring}
-      className="ios-card p-10 flex flex-col items-center justify-center gap-6"
+      className="glass-card p-10 flex flex-col items-center justify-center gap-6"
     >
-      {/* Animated Icon */}
       <motion.div
-        animate={{ 
-          rotate: 360,
-          scale: [1, 1.05, 1],
-        }}
-        transition={{ 
+        animate={{ rotate: 360, scale: [1, 1.05, 1] }}
+        transition={{
           rotate: { duration: 2, repeat: Infinity, ease: 'linear' },
           scale: { duration: 1, repeat: Infinity, ease: 'easeInOut' },
         }}
-        className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center ios-glow-primary"
+        className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center glow-primary"
       >
         <Sparkles className="w-8 h-8 text-white" />
       </motion.div>
 
-      {/* Progress Container */}
       <div className="w-full max-w-[240px] space-y-3">
-        {/* Progress Bar */}
-        <div className="ios-progress">
-          <motion.div
-            className="ios-progress-bar gradient-bg"
-            initial={{ width: '0%' }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-          />
+        <div className="progress-bar">
+          <motion.div className="progress-fill" initial={{ width: '0%' }} animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3, ease: 'easeOut' }} />
         </div>
-        
-        {/* Status */}
         <div className="flex justify-between items-center">
-          <motion.p
-            key={stepIdx}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={spring}
-            className="text-[13px] text-muted-foreground"
-          >
+          <motion.p key={stepIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={spring}
+            className="text-[13px] text-muted-foreground">
             {steps[stepIdx]}
           </motion.p>
-          <span className="text-[13px] font-mono font-medium text-foreground">
-            {Math.round(progress)}%
-          </span>
+          <span className="text-[13px] font-mono font-medium text-foreground">{Math.round(progress)}%</span>
         </div>
       </div>
 
-      {/* Dots Animation */}
       <div className="flex gap-1.5">
         {[0, 1, 2].map(i => (
-          <motion.div
-            key={i}
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.3, 1, 0.3],
-            }}
-            transition={{
-              duration: 0.8,
-              repeat: Infinity,
-              delay: i * 0.15,
-              ease: 'easeInOut',
-            }}
-            className="w-2 h-2 rounded-full bg-primary"
-          />
+          <motion.div key={i}
+            animate={{ scale: [1, 1.3, 1], opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
+            className="w-2 h-2 rounded-full bg-primary" />
         ))}
       </div>
     </motion.div>
