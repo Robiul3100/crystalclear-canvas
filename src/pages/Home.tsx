@@ -8,7 +8,7 @@ import ToolCard from '@/components/ToolCard';
 import { tools, categories } from '@/data/tools';
 
 const spring = { type: 'spring' as const, stiffness: 400, damping: 30 };
-const stagger = { staggerChildren: 0.06 };
+const stagger = { animate: { transition: { staggerChildren: 0.06 } } };
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },

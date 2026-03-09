@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import ToolCard from '@/components/ToolCard';
 import { tools, categories } from '@/data/tools';
 
-const stagger = { staggerChildren: 0.04 };
+const stagger = { animate: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = { initial: { opacity: 0, y: 15 }, animate: { opacity: 1, y: 0 } };
 
 export default function Tools() {
