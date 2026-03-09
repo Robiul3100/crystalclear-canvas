@@ -24,7 +24,7 @@ interface ProcessedImage {
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 50 * 1024 * 1024;
 
-const spring = { type: 'spring', stiffness: 500, damping: 30 };
+const spring = { type: 'spring' as const, stiffness: 500, damping: 30 };
 
 const Index = () => {
   const [images, setImages] = useState<ProcessedImage[]>([]);

@@ -7,7 +7,7 @@ interface BeforeAfterSliderProps {
   afterSrc: string;
 }
 
-const spring = { type: 'spring', stiffness: 500, damping: 30 };
+const spring = { type: 'spring' as const, stiffness: 500, damping: 30 };
 
 const BeforeAfterSlider = ({ beforeSrc, afterSrc }: BeforeAfterSliderProps) => {
   const [position, setPosition] = useState(50);

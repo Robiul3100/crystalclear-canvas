@@ -10,7 +10,7 @@ const steps = [
   'ফাইনাল আউটপুট...',
 ];
 
-const spring = { type: 'spring', stiffness: 500, damping: 30 };
+const spring = { type: 'spring' as const, stiffness: 500, damping: 30 };
 
 const ProcessingOverlay = () => {
   const [progress, setProgress] = useState(0);
