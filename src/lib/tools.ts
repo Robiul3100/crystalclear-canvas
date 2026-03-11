@@ -149,6 +149,8 @@ export const tools: ToolDef[] = [
     icon: Crop,
     category: 'edit',
     path: '/tool/crop',
+    working: true,
+    badge: 'New',
   },
   {
     id: 'resize',
@@ -158,6 +160,7 @@ export const tools: ToolDef[] = [
     icon: Maximize,
     category: 'edit',
     path: '/tool/resize',
+    working: true,
   },
   {
     id: 'rotate',
@@ -167,6 +170,7 @@ export const tools: ToolDef[] = [
     icon: RotateCw,
     category: 'edit',
     path: '/tool/rotate',
+    working: true,
   },
   {
     id: 'compress',
@@ -176,6 +180,7 @@ export const tools: ToolDef[] = [
     icon: FileDown,
     category: 'edit',
     path: '/tool/compress',
+    working: true,
   },
 
   // Creative AI Tools
