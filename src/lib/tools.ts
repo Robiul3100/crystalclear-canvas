@@ -118,6 +118,7 @@ export const tools: ToolDef[] = [
     icon: Focus,
     category: 'enhance',
     path: '/tool/image-sharpener',
+    working: true,
   },
   {
     id: 'color-enhancer',
@@ -127,6 +128,7 @@ export const tools: ToolDef[] = [
     icon: Palette,
     category: 'enhance',
     path: '/tool/color-enhancer',
+    working: true,
   },
   {
     id: 'old-photo-restore',
