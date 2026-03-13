@@ -58,7 +58,7 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         glass: {
-          DEFAULT: "hsl(var(--glass))",
+          DEFAULT: "hsl(var(--glass-bg))",
           border: "hsl(var(--glass-border))",
         },
       },
