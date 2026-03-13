@@ -19,19 +19,25 @@ export default function ToolCard({ tool, index }: ToolCardProps) {
       transition={{ delay: index * 0.03, duration: 0.4 }}
     >
       <Link to={tool.path} className="block group">
-        <div className="relative glass-card p-5 overflow-hidden transition-all duration-300 hover:border-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5">
+        <div className="relative glass-card-hover p-5 overflow-hidden">
           {/* Hover glow */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-primary/5 blur-3xl" />
+            <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl"
+              style={{ background: 'hsl(var(--primary) / 0.06)' }} />
           </div>
 
           {/* Badge */}
           {tool.badge && (
             <span className={`absolute top-3.5 right-3.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-              tool.badge === 'Featured' ? 'gradient-primary text-white' :
-              tool.badge === 'Popular' ? 'bg-accent/15 text-accent' :
-              'bg-primary/15 text-primary'
-            }`}>
+              tool.badge === 'Featured' ? 'gradient-primary text-primary-foreground' :
+              tool.badge === 'Popular' ? 'text-accent' :
+              'text-primary'
+            }`}
+              style={tool.badge !== 'Featured' ? {
+                background: 'hsl(var(--glass-bg))',
+                border: '1px solid hsl(var(--glass-border))',
+              } : undefined}
+            >
               {tool.badge}
             </span>
           )}
@@ -50,9 +56,14 @@ export default function ToolCard({ tool, index }: ToolCardProps) {
           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 ${
             tool.working
               ? 'gradient-primary glow-primary group-hover:scale-110'
-              : 'bg-secondary group-hover:bg-primary/10'
-          }`}>
-            <Icon className={`w-6 h-6 transition-colors ${tool.working ? 'text-white' : 'text-muted-foreground group-hover:text-primary'}`} />
+              : 'group-hover:scale-110'
+          }`}
+            style={!tool.working ? {
+              background: 'hsl(var(--glass-bg))',
+              border: '1px solid hsl(var(--glass-border))',
+            } : undefined}
+          >
+            <Icon className={`w-6 h-6 transition-colors ${tool.working ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary'}`} />
           </div>
 
           {/* Content */}
@@ -82,7 +93,8 @@ export default function ToolCard({ tool, index }: ToolCardProps) {
 
           {/* Coming Soon subtle overlay */}
           {!tool.working && (
-            <div className="absolute inset-0 bg-background/5 rounded-2xl pointer-events-none" />
+            <div className="absolute inset-0 rounded-[20px] pointer-events-none"
+              style={{ background: 'hsl(var(--background) / 0.03)' }} />
           )}
         </div>
       </Link>

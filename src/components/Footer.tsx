@@ -11,14 +11,14 @@ const toolLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border/40 bg-card/50 safe-bottom">
+    <footer className="safe-bottom" style={{ borderTop: '1px solid hsl(var(--glass-border))' }}>
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center glow-primary">
+                <Sparkles className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="text-[15px] font-bold text-foreground">
                 AI <span className="gradient-text">Toolkit</span>
@@ -41,7 +41,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Company */}
+          {/* Platform */}
           <div className="space-y-3">
             <h4 className="text-[13px] font-semibold text-foreground uppercase tracking-wider">Platform</h4>
             <div className="space-y-2">
@@ -59,7 +59,11 @@ export default function Footer() {
                 <motion.button
                   key={i}
                   whileTap={{ scale: 0.9 }}
-                  className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center touch-feedback hover:bg-primary/10 hover:text-primary transition-colors"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center touch-feedback text-muted-foreground hover:text-primary transition-colors"
+                  style={{
+                    background: 'hsl(var(--glass-bg))',
+                    border: '1px solid hsl(var(--glass-border))',
+                  }}
                 >
                   <Icon className="w-4 h-4" />
                 </motion.button>
@@ -68,7 +72,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3"
+          style={{ borderTop: '1px solid hsl(var(--glass-border))' }}>
           <p className="text-[12px] text-muted-foreground flex items-center gap-1">
             Made with <Heart className="w-3 h-3 text-destructive" /> by
             <span className="font-semibold gradient-text">RSF ROBIUL</span>
