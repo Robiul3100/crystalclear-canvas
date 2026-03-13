@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Upload, Image as ImageIcon, Clipboard, Download, RotateCcw,
-  Camera, ArrowLeft, ZoomIn
+  Upload, Image as ImageIcon, Clipboard,
+  Camera, ArrowLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -67,7 +67,7 @@ export default function ToolLayout({ title, titleHighlight, subtitle, children }
   return (
     <div className="min-h-screen bg-background safe-top safe-bottom" onPaste={handlePaste} tabIndex={0}>
       <Navbar />
-      <main className="pt-20 pb-8 px-4">
+      <main className="pt-24 pb-8 px-4">
         <input
           ref={fileInputRef}
           type="file"
@@ -76,7 +76,7 @@ export default function ToolLayout({ title, titleHighlight, subtitle, children }
           onChange={(e) => { if (e.target.files?.[0]) loadFile(e.target.files[0]); }}
         />
         <div className="max-w-2xl mx-auto">
-          <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="mb-4">
+          <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="mb-5">
             <Link to="/" className="btn-ghost text-[13px] px-0 text-muted-foreground hover:text-foreground">
               <ArrowLeft className="w-4 h-4" />
               সব টুলস
@@ -100,17 +100,27 @@ export default function ToolLayout({ title, titleHighlight, subtitle, children }
                   className="block cursor-pointer"
                 >
                   <motion.div animate={isDragging ? { scale: 1.02 } : { scale: 1 }} transition={spring}
-                    className={`upload-zone space-y-5 ${isDragging ? 'active' : ''}`}>
-                    <motion.div animate={isDragging ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-                      className="w-20 h-20 mx-auto rounded-[22px] gradient-primary flex items-center justify-center glow-primary">
-                      <Camera className="w-9 h-9 text-white" />
+                    className={`upload-zone space-y-6 ${isDragging ? 'active' : ''}`}>
+                    
+                    {/* Upload icon with glow */}
+                    <motion.div 
+                      animate={isDragging ? { scale: 1.15, rotate: 5 } : { scale: 1, rotate: 0 }}
+                      transition={spring}
+                      className="w-20 h-20 mx-auto rounded-[22px] gradient-primary flex items-center justify-center glow-primary"
+                    >
+                      <Camera className="w-9 h-9 text-primary-foreground" />
                     </motion.div>
-                    <div className="space-y-1.5">
-                      <p className="text-[17px] font-semibold text-foreground">ইমেজ যোগ করুন</p>
+
+                    <div className="space-y-2">
+                      <p className="text-[17px] font-semibold text-foreground">
+                        Drag & Drop Image or Click to Upload
+                      </p>
                       <p className="text-[13px] text-muted-foreground">JPG, PNG, WebP • সর্বোচ্চ 50MB</p>
                     </div>
+
                     <div className="flex flex-wrap justify-center gap-2">
-                      <span className="pill text-accent"><ImageIcon className="w-3.5 h-3.5" />ড্র্যাগ & ড্রপ</span>
+                      <span className="pill text-accent"><Upload className="w-3.5 h-3.5" />ড্র্যাগ & ড্রপ</span>
+                      <span className="pill text-accent"><ImageIcon className="w-3.5 h-3.5" />ফাইল সিলেক্ট</span>
                       <span className="pill text-accent"><Clipboard className="w-3.5 h-3.5" />পেস্ট (Ctrl+V)</span>
                     </div>
                   </motion.div>
